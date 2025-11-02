@@ -1,6 +1,9 @@
 import 'dotenv/config';
 import type { DiscogsReleaseResponse, DiscogsMasterResponse, LookupResult } from './types';
 
+// By re-exporting the type, we make it part of the package's public API.
+export type { LookupResult } from './types';
+
 const API_BASE_URL = 'https://api.discogs.com';
 
 export class DiscogsApiError extends Error {
