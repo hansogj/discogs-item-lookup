@@ -15,11 +15,18 @@ export class DiscogsApiError extends Error {
 
 /**
  * Fetches release data from the Discogs API.
- * @param releaseId The ID of the Discogs release.
+ * @param releaseId The ID of the Discogs release. Can be in formats like '249504', 'r249504', or '[r249504]'.
  * @param discogsToken Your Discogs personal access token. If not provided, it will try to use the DISCOGS_TOKEN environment variable.
  * @returns A promise that resolves with the formatted release data.
  */
 export async function lookupRelease(releaseId: string, discogsToken?: string): Promise<LookupResult> {
+  // Sanitize the releaseId to extract only the numeric part.
+  const sanitizedReleaseId = releaseId.replace(/\D/g, '');
+
+  if (!sanitizedReleaseId) {
+    throw new DiscogsApiError(`Invalid Release ID format: "${releaseId}". Please provide a valid ID.`);
+  }
+
   const token = discogsToken || process.env.DISCOGS_TOKEN;
 
   if (!token) {
@@ -32,11 +39,11 @@ export async function lookupRelease(releaseId: string, discogsToken?: string): P
   };
 
   // 1. Fetch the specific release data
-  const releaseResponse = await fetch(`${API_BASE_URL}/releases/${releaseId}`, { headers });
+  const releaseResponse = await fetch(`${API_BASE_URL}/releases/${sanitizedReleaseId}`, { headers });
 
   if (!releaseResponse.ok) {
     if (releaseResponse.status === 404) {
-      throw new DiscogsApiError(`Release with ID "${releaseId}" not found.`);
+      throw new DiscogsApiError(`Release with ID "${sanitizedReleaseId}" not found.`);
     }
     const errorText = await releaseResponse.text();
     throw new DiscogsApiError(`Failed to fetch release data. Status: ${releaseResponse.status} - ${errorText}`);
@@ -70,6 +77,6 @@ export async function lookupRelease(releaseId: string, discogsToken?: string): P
     tracks: release.tracklist?.map(track => ({ position: track.position, title: track.title })) || [],
     masterYear: masterYear,
     releaseYear: release.year,
-    discogsUrl: `https://www.discogs.com/release/${releaseId}`,
+    discogsUrl: `https://www.discogs.com/release/${sanitizedReleaseId}`,
   };
 };
