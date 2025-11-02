@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 
+// FIX: Add a triple-slash directive to include Node.js type definitions. This resolves errors with the 'process' global object.
+/// <reference types="node" />
+
 import { Command } from 'commander';
 import { lookupRelease, DiscogsApiError } from './index';
-import { createRequire } from 'module';
-// FIX: Import process from 'node:process' to make Node.js globals available.
-import { process } from 'node:process';
 
-const require = createRequire(import.meta.url);
+// Use the standard CommonJS `require` to import JSON files.
+// This resolves the errors related to `createRequire` and `import.meta`.
 const pkg = require('../package.json');
-
 
 const program = new Command();
 
@@ -49,6 +49,8 @@ program
       } else {
         console.error('❌ An unknown error occurred.');
       }
+      // `process` is a global object in Node.js, so it doesn't need to be imported.
+      // This resolves the error about the process import.
       process.exit(1);
     }
   });
