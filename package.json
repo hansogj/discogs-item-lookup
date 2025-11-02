@@ -1,5 +1,5 @@
 {
-  "name": "@hansogj/discogs-lookup",
+  "name": "@hansogj/discogs-item-lookup",
   "version": "1.0.0",
   "description": "A CLI and library to look up item details from the Discogs API.",
   "main": "dist/index.js",
