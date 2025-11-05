@@ -1,0 +1,59 @@
+{
+  "name": "@hansogj/discogs-item-lookup",
+  "version": "1.1.0",
+  "description": "A CLI and library to look up item details from the Discogs API.",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "discogs-lookup": "./dist/cli.js"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "start": "ts-node src/cli.ts",
+    "example": "ts-node examples/rip-off.ts",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "discogs",
+    "api",
+    "cli",
+    "music",
+    "vinyl",
+    "lookup"
+  ],
+  "author": "Hans Ole Gjerdrem",
+  "license": "ISC",
+  "dependencies": {
+    "commander": "^12.0.0",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.7",
+    "ts-node": "^10.9.2",
+    "tsup": "^8.0.2",
+    "typescript": "^5.4.5"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hansogj/discogs-item-lookup.git"
+  },
+  "bugs": {
+    "url": "https://github.com/hansogj/discogs-item-lookup/issues"
+  },
+  "homepage": "https://github.com/hansogj/discogs-item-lookup#readme"
+}
