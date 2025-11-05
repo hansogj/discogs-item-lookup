@@ -23,6 +23,7 @@
     "build": "npm run clean && tsup",
     "cli": "node dist/cli.js",
     "test": "vitest run",
+    "prepack": "pnpm format:check && pnpm test &&  pnpm build",
     "test:watch": "vitest",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
