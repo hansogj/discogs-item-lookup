@@ -8,32 +8,108 @@ import { exit, argv } from 'node:process';
 
 const program = new Command();
 
+const knownOptions = [
+  '  -t, --token <token>   Discogs personal access token (overrides DISCOGS_TOKEN from .env)',
+  '  -d, --disc <disc>     Return only the specified disc number (if multi-disc release)',
+];
+
+// Ensure unknown options throw, so we can catch and print our own help
+program.allowUnknownOption(false);
+program.exitOverride((err) => {
+  if (err.code === 'commander.unknownOption') {
+    // Extract the unknown option from the error message
+    const match = err.message.match(/unknown option '([^']+)'/);
+    const unknown = match ? match[1] : 'unknown';
+    console.error(`❌ Error: unknown option '${unknown}'`);
+    console.error('\nKnown options:');
+    knownOptions.forEach((opt) => console.error(opt));
+    program.outputHelp();
+    exit(1);
+  }
+  if (err.code === 'commander.helpDisplayed') {
+    exit(0);
+  }
+  throw err;
+});
+
 program
   .name('discogs-lookup')
-  .version(pkg.version)
+  .version(pkg.version, '-V, --version', 'output the version number')
   .description(pkg.description)
   .argument('<release-id>', 'The numeric ID of the Discogs release')
   .option(
-    '-t, --token <token>',
+    '--token <token>',
     'Discogs personal access token (overrides DISCOGS_TOKEN from .env)',
   )
+  .option(
+    '--disc <disc>',
+    'Return only the specified disc number (if multi-disc release)',
+    (value) => parseInt(value, 10),
+  )
   .action(async (releaseId, options) => {
+    // Normalize disc option: support both -d and --disc
+    let discOption = options.disc;
+    if (discOption === undefined && options.d !== undefined) {
+      discOption = options.d;
+    }
+    if (typeof discOption === 'string') {
+      discOption = parseInt(discOption, 10);
+    }
+    // User instruction for missing releaseId (should not happen with .argument, but for safety)
+    if (!releaseId) {
+      console.error('❌ Error: You must provide a <release-id>.');
+      program.outputHelp();
+      exit(1);
+    }
+    // User instruction for invalid disc option
+    if (discOption !== undefined && (isNaN(discOption) || discOption < 1)) {
+      console.error('❌ Error: --disc must be a positive integer.');
+      program.outputHelp();
+      exit(1);
+    }
     try {
       console.log(`🔍 Looking up Discogs release ID: ${releaseId}...`);
-      const data = await lookupRelease(releaseId, options.token);
+      let data;
+      if (discOption) {
+        data = await lookupRelease(releaseId, discOption, options.token);
+      } else {
+        data = await lookupRelease(releaseId, options.token);
+      }
 
       console.log('\n--- Release Information ---');
       console.log(`Artist:       ${data.artist}`);
+      const knownOptions = [
+        '  --token <token>   Discogs personal access token (overrides DISCOGS_TOKEN from .env)',
+        '  --disc <disc>     Return only the specified disc number (if multi-disc release)',
+        '  -V, --version     Output the version number',
+      ];
       console.log(`Title:        ${data.title}`);
       console.log(`Release Year: ${data.releaseYear}`);
       console.log(`Master Year:  ${data.masterYear}`);
       console.log(`Discogs URL:  ${data.discogsUrl}`);
       console.log('---------------------------\n');
 
-      if (data.tracks && data.tracks.length > 0) {
+      if (data.discs && data.discs.length > 0) {
+        // If --disc is specified but not found, instruct user
+        if (discOption && !data.discs.some((d) => d.disc === discOption)) {
+          console.error(
+            `❌ Error: Disc ${discOption} not found in this release.`,
+          );
+          const available = data.discs.map((d) => d.disc).join(', ');
+          console.error(`   Available discs: ${available}`);
+          console.error('\nKnown options:');
+          knownOptions.forEach((opt) => console.error(opt));
+          program.outputHelp();
+          exit(1);
+        }
         console.log('--- Tracklist ---');
-        data.tracks.forEach((track) => {
-          console.log(`${(track.position || '').padEnd(5)} ${track.title}`);
+        data.discs.forEach((disc) => {
+          if (data.discs.length > 1 || discOption) {
+            console.log(`Disc ${disc.disc}:`);
+          }
+          disc.tracks.forEach((track: { position: string; title: string }) => {
+            console.log(`${(track.position || '').padEnd(5)} ${track.title}`);
+          });
         });
         console.log('-----------------\n');
       } else {
@@ -47,7 +123,6 @@ program
       } else {
         console.error('❌ An unknown error occurred.');
       }
-      // Fix: Use `exit()` from `node:process` to terminate the process on error.
       exit(1);
     }
   });

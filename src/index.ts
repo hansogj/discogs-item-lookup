@@ -17,6 +17,9 @@ export { DiscogsApiError } from './errors';
  */
 export async function lookupRelease(
   releaseId: string,
+  // Backwards-compatible: second argument may be a token (string) or a disc number (number).
+  discOrToken?: number | string,
+  // If caller passed a disc number as the second arg, this can be used to pass the token.
   discogsToken?: string,
 ): Promise<LookupResult> {
   const sanitizedId = sanitizeReleaseId(releaseId);
@@ -26,7 +29,17 @@ export async function lookupRelease(
     );
   }
 
-  const token = getToken(discogsToken);
+  // Resolve provided arguments: support both lookupRelease(id, token) and lookupRelease(id, disc, token)
+  let discFilter: number | undefined;
+  let tokenArg: string | undefined;
+  if (typeof discOrToken === 'number') {
+    discFilter = discOrToken;
+    tokenArg = discogsToken;
+  } else {
+    tokenArg = discOrToken as string | undefined;
+  }
+
+  const token = getToken(tokenArg);
 
   const release = await fetchRelease(sanitizedId, token);
 
@@ -38,16 +51,64 @@ export async function lookupRelease(
     // If no master_id, this is the original release, so use its year.
     masterYear = release.year;
   }
+  // Heuristic: determine the disc number for each track from its position string.
+  // Common patterns:
+  // - "1-1" or "2-03" => prefix before '-' indicates disc number
+  // - "1.01" => prefix before '.' indicates disc number
+  // - "1" => track number on disc 1
+  // Otherwise assume disc 1.
+  const tracklist = release.tracklist || [];
+
+  function parseDiscFromPosition(pos: string | undefined): number {
+    if (!pos) return 1;
+    // digits before -, ., / or :
+    const m = pos.match(/^(\d+)(?:[-.\/:])/);
+    if (m) return parseInt(m[1], 10);
+    // simple numeric position like "1" or "2"
+    const m2 = pos.match(/^(\d+)$/);
+    if (m2) return parseInt(m2[1], 10);
+    // patterns like "1/2"
+    const m3 = pos.match(/^(\d+)\/\d+/);
+    if (m3) return parseInt(m3[1], 10);
+    return 1;
+  }
+
+  const discsMap = new Map<number, { position: string; title: string }[]>();
+
+  tracklist
+    .filter(({ type_ }) => type_ === 'track')
+    .forEach((t, idx) => {
+      const pos = t.position || String(idx + 1);
+      const discNum = parseDiscFromPosition(pos);
+      if (!discsMap.has(discNum)) discsMap.set(discNum, []);
+      discsMap.get(discNum)!.push({ position: pos, title: t.title });
+    });
+
+  // Build discs array sorted by disc number
+  let discs = Array.from(discsMap.entries())
+    .sort((a, b) => a[0] - b[0])
+    .map(([disc, tracks]) => ({ disc, tracks }));
+
+  // If every disc only has one track and the number of discs equals the number of tracks,
+  // treat as a single disc (common for single-disc releases with positions "1", "2", ...)
+  const totalTracks = tracklist.filter(({ type_ }) => type_ === 'track').length;
+  if (
+    discs.length === totalTracks &&
+    discs.every((d) => d.tracks.length === 1)
+  ) {
+    discs = [{ disc: 1, tracks: discs.map((d) => d.tracks[0]) }];
+  }
+
+  // If a disc filter was provided, return only that disc (if present).
+  if (typeof discFilter === 'number') {
+    discs = discs.filter((d) => d.disc === discFilter);
+  }
 
   // Format the final data structure
   return {
     artist: release.artists?.map((a) => a.name).join(', ') || 'Unknown Artist',
     title: release.title,
-    tracks:
-      release.tracklist?.map((track) => ({
-        position: track.position,
-        title: track.title,
-      })) || [],
+    discs,
     masterYear: masterYear,
     releaseYear: release.year,
     discogsUrl: `https://www.discogs.com/release/${sanitizedId}`,

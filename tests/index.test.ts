@@ -12,8 +12,12 @@ describe('lookupRelease', () => {
     expect(result.title).toBe('One More Time');
     expect(result.releaseYear).toBe(2000);
     expect(result.masterYear).toBe(2000); // from master release
-    expect(result.tracks.length).toBe(2);
-    expect(result.tracks[0].title).toBe('One More Time (Short Radio Edit)');
+    // single-disc release in the mock: expect one disc with two tracks
+    expect(result.discs.length).toBe(1);
+    expect(result.discs[0].tracks.length).toBe(2);
+    expect(result.discs[0].tracks[0].title).toBe(
+      'One More Time (Short Radio Edit)',
+    );
     expect(result.discogsUrl).toBe('https://www.discogs.com/release/249504');
   });
 

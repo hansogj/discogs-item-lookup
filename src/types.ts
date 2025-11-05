@@ -7,6 +7,7 @@ export interface DiscogsTrack {
   position: string;
   title: string;
   duration: string;
+  type_: 'track' | 'heading';
 }
 
 export interface DiscogsReleaseResponse {
@@ -28,7 +29,10 @@ export interface DiscogsMasterResponse {
 export interface LookupResult {
   artist: string;
   title: string;
-  tracks: { position: string; title: string }[];
+  discs: {
+    disc: number;
+    tracks: { position: string; title: string }[];
+  }[];
   masterYear: number;
   releaseYear: number;
   discogsUrl: string;
