@@ -1,82 +1,47 @@
 import 'dotenv/config';
-import type { DiscogsReleaseResponse, DiscogsMasterResponse, LookupResult } from './types';
+import { fetchRelease, fetchMaster } from './core/api-client';
+import { sanitizeReleaseId } from './core/sanitizer';
+import { getToken } from './core/config';
+import { DiscogsApiError } from './errors';
+import type { LookupResult } from './types';
 
-// By re-exporting the type, we make it part of the package's public API.
+// By re-exporting, we make these part of the package's public API.
 export type { LookupResult } from './types';
+export { DiscogsApiError } from './errors';
 
-const API_BASE_URL = 'https://api.discogs.com';
-
-export class DiscogsApiError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = 'DiscogsApiError';
-  }
-}
 
 /**
- * Fetches release data from the Discogs API.
+ * Fetches and formats comprehensive release data from the Discogs API.
  * @param releaseId The ID of the Discogs release. Can be in formats like '249504', 'r249504', or '[r249504]'.
  * @param discogsToken Your Discogs personal access token. If not provided, it will try to use the DISCOGS_TOKEN environment variable.
  * @returns A promise that resolves with the formatted release data.
  */
 export async function lookupRelease(releaseId: string, discogsToken?: string): Promise<LookupResult> {
-  // Sanitize the releaseId to extract only the numeric part.
-  const sanitizedReleaseId = releaseId.replace(/\D/g, '');
-
-  if (!sanitizedReleaseId) {
-    throw new DiscogsApiError(`Invalid Release ID format: "${releaseId}". Please provide a valid ID.`);
+  const sanitizedId = sanitizeReleaseId(releaseId);
+  if (!sanitizedId) {
+    throw new DiscogsApiError(`Invalid Release ID format: "${releaseId}". Please provide a valid numeric ID.`);
   }
 
-  const token = discogsToken || process.env.DISCOGS_TOKEN;
+  const token = getToken(discogsToken);
 
-  if (!token) {
-    throw new DiscogsApiError('Discogs token is not configured. Please provide it as an argument or set the DISCOGS_TOKEN environment variable.');
-  }
-
-  const headers = {
-    'Authorization': `Discogs token=${token}`,
-    'User-Agent': 'DiscogsLookupScript/1.0'
-  };
-
-  // 1. Fetch the specific release data
-  const releaseResponse = await fetch(`${API_BASE_URL}/releases/${sanitizedReleaseId}`, { headers });
-
-  if (!releaseResponse.ok) {
-    if (releaseResponse.status === 404) {
-      throw new DiscogsApiError(`Release with ID "${sanitizedReleaseId}" not found.`);
-    }
-    const errorText = await releaseResponse.text();
-    throw new DiscogsApiError(`Failed to fetch release data. Status: ${releaseResponse.status} - ${errorText}`);
-  }
-
-  const release: DiscogsReleaseResponse = await releaseResponse.json();
-  const { master_id } = release;
-
+  const release = await fetchRelease(sanitizedId, token);
+  
   let masterYear: number;
-
-  if (master_id) {
-    // 2. If a master ID exists, fetch the master release data to get the original year
-    const masterResponse = await fetch(`${API_BASE_URL}/masters/${master_id}`, { headers });
-
-    if (!masterResponse.ok) {
-       const errorText = await masterResponse.text();
-      throw new DiscogsApiError(`Failed to fetch master release data for master_id ${master_id}. Status: ${masterResponse.status} - ${errorText}`);
-    }
-
-    const master: DiscogsMasterResponse = await masterResponse.json();
+  if (release.master_id) {
+    const master = await fetchMaster(release.master_id, token);
     masterYear = master.year;
   } else {
-    // 3. If no master_id, this is the original release, so use its year.
+    // If no master_id, this is the original release, so use its year.
     masterYear = release.year;
   }
 
-  // 4. Combine and format the data
+  // Format the final data structure
   return {
     artist: release.artists?.map(a => a.name).join(', ') || 'Unknown Artist',
     title: release.title,
     tracks: release.tracklist?.map(track => ({ position: track.position, title: track.title })) || [],
     masterYear: masterYear,
     releaseYear: release.year,
-    discogsUrl: `https://www.discogs.com/release/${sanitizedReleaseId}`,
+    discogsUrl: `https://www.discogs.com/release/${sanitizedId}`,
   };
-};
+}

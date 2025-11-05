@@ -22,6 +22,7 @@
     "clean": "rm -rf dist",
     "build": "tsup",
     "cli": "node dist/cli.js",
+    "test": "vitest",
     "prepublishOnly": "npm run build"
   },
   "keywords": [
@@ -40,9 +41,12 @@
   },
   "devDependencies": {
     "@types/node": "^20.12.7",
+    "@vitest/coverage-v8": "^1.5.0",
+    "msw": "^2.2.14",
     "ts-node": "^10.9.2",
     "tsup": "^8.0.2",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "vitest": "^1.5.0"
   },
   "publishConfig": {
     "access": "public"

@@ -43,10 +43,10 @@ program
       } else {
         console.error('❌ An unknown error occurred.');
       }
-      // FIX: Use `process.exit()` from the global `process` object. `exit` is not a named export from the 'process' module.
+      // Fix: Use `process.exit()` to terminate the process on error. `exit` is a method on the global `process` object.
       process.exit(1);
     }
   });
 
-// FIX: Use `process.argv` from the global `process` object. `argv` is not a named export from the 'process' module.
+// Fix: Use `process.argv` to pass command-line arguments to the parser. `argv` is a property on the global `process` object.
 program.parse(process.argv);
