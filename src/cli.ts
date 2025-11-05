@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
-// FIX: Import `argv` and `exit` from `node:process` to resolve type errors related to Node.js globals.
-import { argv, exit } from 'node:process';
+// FIX: Import `argv` and `exit` from `process` to resolve type errors related to Node.js globals.
+import { argv, exit } from 'process';
 import { lookupRelease, DiscogsApiError } from './index';
 import pkg from '../package.json' assert { type: 'json' };
 

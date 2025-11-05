@@ -10,6 +10,6 @@
     "lib": ["ES2022"],
     "outDir": "dist"
   },
-  "include": ["src", "examples"],
+  "include": ["src"],
   "exclude": ["node_modules", "dist"]
 }

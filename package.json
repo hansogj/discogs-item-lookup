@@ -19,6 +19,7 @@
     "dist"
   ],
   "scripts": {
+    "clean": "rm -rf dist",
     "build": "tsup",
     "cli": "node dist/cli.js",
     "prepublishOnly": "npm run build"
