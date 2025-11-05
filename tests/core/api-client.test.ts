@@ -13,8 +13,12 @@ describe('api-client', () => {
     });
 
     it('should throw DiscogsApiError on a 404 response', async () => {
-      await expect(fetchRelease('999999', token)).rejects.toThrow(DiscogsApiError);
-      await expect(fetchRelease('999999', token)).rejects.toThrow('API request failed to https://api.discogs.com/releases/999999. Status: 404 - Release not found.');
+      await expect(fetchRelease('999999', token)).rejects.toThrow(
+        DiscogsApiError,
+      );
+      await expect(fetchRelease('999999', token)).rejects.toThrow(
+        'API request failed to https://api.discogs.com/releases/999999. Status: 404 - Release not found.',
+      );
     });
   });
 
@@ -26,7 +30,9 @@ describe('api-client', () => {
 
     it('should throw DiscogsApiError on a 404 response', async () => {
       await expect(fetchMaster(9999, token)).rejects.toThrow(DiscogsApiError);
-      await expect(fetchMaster(9999, token)).rejects.toThrow('API request failed to https://api.discogs.com/masters/9999. Status: 404 - Master not found.');
+      await expect(fetchMaster(9999, token)).rejects.toThrow(
+        'API request failed to https://api.discogs.com/masters/9999. Status: 404 - Master not found.',
+      );
     });
   });
 });

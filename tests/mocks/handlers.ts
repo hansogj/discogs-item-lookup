@@ -13,10 +13,15 @@ export const handlers = [
   http.get(`${API_BASE_URL}/masters/3369`, () => {
     return HttpResponse.json(mockMaster);
   }),
-  
+
   // Handler for release without master
   http.get(`${API_BASE_URL}/releases/12345`, () => {
-    const releaseWithoutMaster = { ...mockRelease, master_id: null, id: 12345, year: 2005 };
+    const releaseWithoutMaster = {
+      ...mockRelease,
+      master_id: null,
+      id: 12345,
+      year: 2005,
+    };
     return HttpResponse.json(releaseWithoutMaster);
   }),
 
@@ -27,7 +32,7 @@ export const handlers = [
       headers: { 'Content-Type': 'application/json' },
     });
   }),
-  
+
   // Handler for a master fetch failure
   http.get(`${API_BASE_URL}/masters/9999`, () => {
     return new HttpResponse(JSON.stringify({ message: 'Master not found.' }), {

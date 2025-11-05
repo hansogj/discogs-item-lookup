@@ -27,13 +27,17 @@ describe('lookupRelease', () => {
 
   it('should throw an error for an invalid release ID format', async () => {
     await expect(lookupRelease('invalid-id')).rejects.toThrow(DiscogsApiError);
-    await expect(lookupRelease('invalid-id')).rejects.toThrow('Invalid Release ID format: "invalid-id"');
+    await expect(lookupRelease('invalid-id')).rejects.toThrow(
+      'Invalid Release ID format: "invalid-id"',
+    );
   });
 
   it('should throw an error if no token is provided', async () => {
     vi.stubEnv('DISCOGS_TOKEN', ''); // Unset the token
     await expect(lookupRelease('249504')).rejects.toThrow(DiscogsApiError);
-    await expect(lookupRelease('249504')).rejects.toThrow('Discogs token is not configured.');
+    await expect(lookupRelease('249504')).rejects.toThrow(
+      'Discogs token is not configured.',
+    );
     vi.stubEnv('DISCOGS_TOKEN', 'test-token-from-env'); // Reset for other tests
   });
 
@@ -41,12 +45,11 @@ describe('lookupRelease', () => {
     await expect(lookupRelease('999999')).rejects.toThrow(DiscogsApiError);
     await expect(lookupRelease('999999')).rejects.toThrow(/API request failed/);
   });
-  
-  it('should use a token passed as an argument over the environment variable', async () => {
-      // This test is more about ensuring the token is passed down.
-      // We don't have a specific mock for a different token, but we can verify it runs successfully.
-      const result = await lookupRelease('r249504', 'arg-token');
-      expect(result.artist).toBe('Daft Punk');
-  });
 
+  it('should use a token passed as an argument over the environment variable', async () => {
+    // This test is more about ensuring the token is passed down.
+    // We don't have a specific mock for a different token, but we can verify it runs successfully.
+    const result = await lookupRelease('r249504', 'arg-token');
+    expect(result.artist).toBe('Daft Punk');
+  });
 });

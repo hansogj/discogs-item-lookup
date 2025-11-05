@@ -10,7 +10,9 @@ export function getToken(discogsToken?: string): string {
   const token = discogsToken || process.env.DISCOGS_TOKEN;
 
   if (!token) {
-    throw new DiscogsApiError('Discogs token is not configured. Please provide it as an argument or set the DISCOGS_TOKEN environment variable.');
+    throw new DiscogsApiError(
+      'Discogs token is not configured. Please provide it as an argument or set the DISCOGS_TOKEN environment variable.',
+    );
   }
 
   return token;

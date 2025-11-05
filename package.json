@@ -20,9 +20,12 @@
   ],
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "tsup",
+    "build": "npm run clean && tsup",
     "cli": "node dist/cli.js",
-    "test": "vitest",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "prepublishOnly": "npm run build"
   },
   "keywords": [
@@ -43,6 +46,7 @@
     "@types/node": "^20.12.7",
     "@vitest/coverage-v8": "^1.5.0",
     "msw": "^2.2.14",
+    "prettier": "^3.2.5",
     "ts-node": "^10.9.2",
     "tsup": "^8.0.2",
     "typescript": "^5.4.5",

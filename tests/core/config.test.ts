@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, afterEach } from 'vitest';
 import { getToken } from '../../src/core/config';
 import { DiscogsApiError } from '../../src/errors';
 
