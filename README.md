@@ -26,13 +26,13 @@ discogs-lookup <release-id> [options]
 
 **Arguments:**
 
--   `<release-id>`: The numeric ID of the Discogs release (e.g., `249504`).
+- `<release-id>`: The numeric ID of the Discogs release (e.g., `249504`).
 
 **Options:**
 
--   `-t, --token <token>`: Discogs personal access token. This overrides the `DISCOGS_TOKEN` environment variable.
--   `-h, --help`: display help for command.
--   `-V, --version`: output the version number.
+- `-t, --token <token>`: Discogs personal access token. This overrides the `DISCOGS_TOKEN` environment variable.
+- `-h, --help`: display help for command.
+- `-V, --version`: output the version number.
 
 **Example:**
 

@@ -1,1 +1,12 @@
-��ZjWb���׿��n��?�zf�Z���
+.env.local
+dist/
+node_modules/
+.vscode/
+.DS_Store
+.idea/
+*.log
+coverage/
+build/
+.next/
+out        
+*.tgz
