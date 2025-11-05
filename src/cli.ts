@@ -1,8 +1,6 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
-// FIX: Import `argv` and `exit` from `process` to resolve type errors related to Node.js globals.
-import { argv, exit } from 'process';
 import { lookupRelease, DiscogsApiError } from './index';
 import pkg from '../package.json' assert { type: 'json' };
 
@@ -45,10 +43,10 @@ program
       } else {
         console.error('❌ An unknown error occurred.');
       }
-      // FIX: Use the imported `exit` function instead of `process.exit`.
-      exit(1);
+      // FIX: Use `process.exit()` from the global `process` object. `exit` is not a named export from the 'process' module.
+      process.exit(1);
     }
   });
 
-// FIX: Use the imported `argv` variable instead of `process.argv`.
-program.parse(argv);
+// FIX: Use `process.argv` from the global `process` object. `argv` is not a named export from the 'process' module.
+program.parse(process.argv);
