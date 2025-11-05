@@ -1,8 +1,6 @@
-# Discogs Item Lookup Web App
+# Discogs Item Lookup
 
-A simple web application to look up information about a specific music release from the Discogs API.
-
-This application provides a user-friendly interface to fetch and display release details.
+A CLI and library to look up information about a specific music release from the Discogs API.
 
 ## Features
 
@@ -12,20 +10,71 @@ This application provides a user-friendly interface to fetch and display release
 - **Release Years:** See both the year for this specific release and the year of the original master release.
 - **Direct Link:** A convenient link to view the release directly on the Discogs website.
 
-## How to Use
+## Installation
 
-1.  Open the web application.
-2.  Enter the numeric ID of the Discogs release you want to look up into the search bar. You can find this ID in the URL of a Discogs release page (e.g., for `https://www.discogs.com/release/249504-Daft-Punk-One-More-Time`, the ID is `249504`).
-3.  Click the "Search" button or press Enter.
-4.  The release information will be displayed on the screen.
+```bash
+npm install -g @hansogj/discogs-item-lookup
+```
+
+## CLI Usage
+
+After installation, you can use the `discogs-lookup` command.
+
+```bash
+discogs-lookup <release-id> [options]
+```
+
+**Arguments:**
+
+-   `<release-id>`: The numeric ID of the Discogs release (e.g., `249504`).
+
+**Options:**
+
+-   `-t, --token <token>`: Discogs personal access token. This overrides the `DISCOGS_TOKEN` environment variable.
+-   `-h, --help`: display help for command.
+-   `-V, --version`: output the version number.
+
+**Example:**
+
+```bash
+discogs-lookup 249504
+```
+
+This will output the release information for Daft Punk's "One More Time".
+
+## Library Usage
+
+You can also use this package as a library in your own Node.js projects.
+
+```typescript
+import { lookupRelease, DiscogsApiError } from '@hansogj/discogs-item-lookup';
+
+async function getReleaseInfo(releaseId: string) {
+  try {
+    const data = await lookupRelease(releaseId);
+    console.log(data);
+  } catch (error) {
+    if (error instanceof DiscogsApiError) {
+      console.error(`API Error: ${error.message}`);
+    } else {
+      console.error('An unexpected error occurred:', error);
+    }
+  }
+}
+
+getReleaseInfo('249504');
+```
 
 ## Configuration
 
-This application requires a Discogs Personal Access Token to communicate with the Discogs API. The token must be provided as an environment variable named `DISCOGS_TOKEN` in the execution environment.
+This tool requires a Discogs Personal Access Token to communicate with the Discogs API. The token can be provided in one of two ways:
+
+1.  **Environment Variable (recommended):** Create a `.env` file in your project root and add `DISCOGS_TOKEN=your_token_here`.
+2.  **CLI Option:** Use the `--token` or `-t` flag when running the command.
 
 ### Getting a Discogs Token
 
 1.  Log in to your Discogs account.
 2.  Go to your [Developer Settings](https://www.discogs.com/settings/developers).
 3.  Click "Generate new token".
-4.  Use this token for the `DISCOGS_TOKEN` environment variable.
+4.  Use this token for the `DISCOGS_TOKEN` environment variable or the `--token` option.

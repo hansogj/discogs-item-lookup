@@ -20,9 +20,7 @@
   ],
   "scripts": {
     "build": "tsup",
-    "dev": "tsup --watch",
-    "start": "ts-node src/cli.ts",
-    "example": "ts-node examples/rip-off.ts",
+    "cli": "node dist/cli.js",
     "prepublishOnly": "npm run build"
   },
   "keywords": [
