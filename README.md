@@ -78,3 +78,5 @@ This tool requires a Discogs Personal Access Token to communicate with the Disco
 2.  Go to your [Developer Settings](https://www.discogs.com/settings/developers).
 3.  Click "Generate new token".
 4.  Use this token for the `DISCOGS_TOKEN` environment variable or the `--token` option.
+
+...
