@@ -10,3 +10,4 @@ build/
 .next/
 out        
 *.tgz
+.env

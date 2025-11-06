@@ -6,11 +6,17 @@ export const mockRelease: DiscogsReleaseResponse = {
   artists: [{ name: 'Daft Punk', id: 1283 }],
   tracklist: [
     {
-      position: 'A',
+      position: '1',
       title: 'One More Time (Short Radio Edit)',
       duration: '3:55',
+      type_: 'track',
     },
-    { position: 'B', title: 'One More Time (Unplugged)', duration: '3:40' },
+    {
+      position: '2',
+      title: 'One More Time (Unplugged)',
+      duration: '3:40',
+      type_: 'track',
+    },
   ],
   master_id: 3369,
   year: 2000,
