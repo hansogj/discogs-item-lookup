@@ -49,9 +49,13 @@ You can also use this package as a library in your own Node.js projects.
 ```typescript
 import { lookupRelease, DiscogsApiError } from '@hansogj/discogs-item-lookup';
 
-async function getReleaseInfo(releaseId: string) {
+async function getReleaseInfo() {
   try {
-    const data = await lookupRelease(releaseId);
+    const data = await lookupRelease({
+      releaseId: '249504',
+      // token: 'your-discogs-token', // optional, will use env if not provided
+      // disc: 2, // optional, to get only a specific disc
+    });
     console.log(data);
   } catch (error) {
     if (error instanceof DiscogsApiError) {
@@ -62,7 +66,7 @@ async function getReleaseInfo(releaseId: string) {
   }
 }
 
-getReleaseInfo('249504');
+getReleaseInfo();
 ```
 
 ## Configuration

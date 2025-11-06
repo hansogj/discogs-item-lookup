@@ -47,14 +47,6 @@ program
     (value) => parseInt(value, 10),
   )
   .action(async (releaseId, options) => {
-    // Normalize disc option: support both -d and --disc
-    let discOption = options.disc;
-    if (discOption === undefined && options.d !== undefined) {
-      discOption = options.d;
-    }
-    if (typeof discOption === 'string') {
-      discOption = parseInt(discOption, 10);
-    }
     // User instruction for missing releaseId (should not happen with .argument, but for safety)
     if (!releaseId) {
       console.error('❌ Error: You must provide a <release-id>.');
@@ -62,6 +54,10 @@ program
       exit(1);
     }
     // User instruction for invalid disc option
+    let discOption = options.disc;
+    if (typeof discOption === 'string') {
+      discOption = parseInt(discOption, 10);
+    }
     if (discOption !== undefined && (isNaN(discOption) || discOption < 1)) {
       console.error('❌ Error: --disc must be a positive integer.');
       program.outputHelp();
@@ -69,12 +65,11 @@ program
     }
     try {
       console.log(`🔍 Looking up Discogs release ID: ${releaseId}...`);
-      let data;
-      if (discOption) {
-        data = await lookupRelease(releaseId, discOption, options.token);
-      } else {
-        data = await lookupRelease(releaseId, options.token);
-      }
+      const data = await lookupRelease({
+        releaseId,
+        token: options.token,
+        disc: discOption,
+      });
 
       console.log('\n--- Release Information ---');
       console.log(`Artist:       ${data.artist}`);

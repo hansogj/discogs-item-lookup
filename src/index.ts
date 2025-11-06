@@ -15,13 +15,16 @@ export { DiscogsApiError } from './errors';
  * @param discogsToken Your Discogs personal access token. If not provided, it will try to use the DISCOGS_TOKEN environment variable.
  * @returns A promise that resolves with the formatted release data.
  */
+export interface LookupReleaseOptions {
+  releaseId: string;
+  token?: string;
+  disc?: number;
+}
+
 export async function lookupRelease(
-  releaseId: string,
-  // Backwards-compatible: second argument may be a token (string) or a disc number (number).
-  discOrToken?: number | string,
-  // If caller passed a disc number as the second arg, this can be used to pass the token.
-  discogsToken?: string,
+  options: LookupReleaseOptions,
 ): Promise<LookupResult> {
+  const { releaseId, token: discogsToken, disc: discFilter } = options;
   const sanitizedId = sanitizeReleaseId(releaseId);
   if (!sanitizedId) {
     throw new DiscogsApiError(
@@ -30,16 +33,7 @@ export async function lookupRelease(
   }
 
   // Resolve provided arguments: support both lookupRelease(id, token) and lookupRelease(id, disc, token)
-  let discFilter: number | undefined;
-  let tokenArg: string | undefined;
-  if (typeof discOrToken === 'number') {
-    discFilter = discOrToken;
-    tokenArg = discogsToken;
-  } else {
-    tokenArg = discOrToken as string | undefined;
-  }
-
-  const token = getToken(tokenArg);
+  const token = getToken(discogsToken);
 
   const release = await fetchRelease(sanitizedId, token);
 
