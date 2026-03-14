@@ -24,10 +24,11 @@
     "cli": "node dist/cli.js",
     "test": "vitest run",
     "prepack": "pnpm format:check && pnpm test &&  pnpm build",
+    "precommit": "pnpm prepack",
+    "prepublishOnly": "npm run build",
     "test:watch": "vitest",
     "format": "prettier --write .",
-    "format:check": "prettier --check .",
-    "prepublishOnly": "npm run build"
+    "format:check": "prettier --check ."
   },
   "keywords": [
     "discogs",
