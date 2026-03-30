@@ -2,7 +2,7 @@
 
 import { Command } from 'commander';
 import { lookupRelease, DiscogsApiError } from './index';
-import pkg from '../package.json' assert { type: 'json' };
+import pkg from '../package.json' with { type: 'json' };
 // Fix: Import `exit` and `argv` directly from `node:process` to ensure correct types are used.
 import { exit, argv } from 'node:process';
 
