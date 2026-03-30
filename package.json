@@ -28,7 +28,10 @@
     "prepublishOnly": "npm run build",
     "test:watch": "vitest",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "post:update": "rm -rfv node_modules && pnpm prune && pnpm i",
+    "update:majors": "npx npm-check-updates -i -t latest && pnpm run post:update",
+    "update": "npx npm-check-updates -i -t minor && pnpm run post:update"
   },
   "keywords": [
     "discogs",
@@ -41,18 +44,18 @@
   "author": "Hans Ole Gjerdrem",
   "license": "ISC",
   "dependencies": {
-    "commander": "^12.0.0",
-    "dotenv": "^16.4.5"
+    "commander": "^12.1.0",
+    "dotenv": "^16.6.1"
   },
   "devDependencies": {
-    "@types/node": "^20.12.7",
-    "@vitest/coverage-v8": "^1.5.0",
-    "msw": "^2.2.14",
-    "prettier": "^3.2.5",
+    "@types/node": "^20.19.37",
+    "@vitest/coverage-v8": "^1.6.1",
+    "msw": "^2.12.14",
+    "prettier": "^3.8.1",
     "ts-node": "^10.9.2",
-    "tsup": "^8.0.2",
-    "typescript": "^5.4.5",
-    "vitest": "^1.5.0"
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3",
+    "vitest": "^1.6.1"
   },
   "publishConfig": {
     "access": "public"

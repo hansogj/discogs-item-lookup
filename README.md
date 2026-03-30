@@ -37,10 +37,12 @@ discogs-lookup <release-id> [options]
 **Example:**
 
 ```bash
-discogs-lookup 249504
+discogs-lookup 249504 // or
+pnpm run cli 249504
 ```
 
-This will output the release information for Daft Punk's "One More Time".
+This will output the release information for Rick Astley's "Never Gonna Give You Up"
+.
 
 ## Library Usage
 
